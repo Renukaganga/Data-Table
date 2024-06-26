@@ -34,6 +34,32 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
+// Define your data type
+interface UserData {
+  name: string;
+  email: string;
+  lastSeen: string;
+}
+
+// Define your columns
+const columns: ColumnDef<UserData, any>[] = [
+  {
+    accessorKey: 'name',
+    header: () => <div className='flex items-center'>Name</div>,
+    cell: info => info.getValue(),
+  },
+  {
+    accessorKey: 'email',
+    header: () => <div className='flex items-center'>Email</div>,
+    cell: info => info.getValue(),
+  },
+  {
+    accessorKey: 'lastSeen',
+    header: () => <div className='flex items-center'>Last Seen</div>,
+    cell: info => info.getValue(),
+  },
+]
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -64,19 +90,35 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel()
   })
 
+  const getSortingIcon = (columnId: string) => {
+    const isSorted = sorting.find(sort => sort.id === columnId)
+    if (!isSorted) return null
+    if (isSorted.desc) return '↓' // Replace with custom down arrow icon
+    return '↑' // Replace with custom up arrow icon
+  }
+
   return (
     <>
-      
       <div className='flex items-center justify-between'>
         <div className='flex items-center py-4'>
-          <Input
-            placeholder='Search by name...'
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={event =>
-              table.getColumn('name')?.setFilterValue(event.target.value)
-            }
-            className='max-w-sm'
-          />
+        <Input
+  placeholder='Search by name...'
+  value={
+    (table.getColumn('name')?.getFilterValue() as string) ?? 
+    (table.getColumn('email')?.getFilterValue() as string) ?? 
+    (table.getColumn('lastseen')?.getFilterValue() as string) ?? 
+    ''
+  }
+  onChange={event => {
+    const value = event.target.value;
+    table.getColumn('name')?.setFilterValue(value);
+    table.getColumn('email')?.setFilterValue(value);
+    table.getColumn('lastseen')?.setFilterValue(value);
+  }}
+  className='max-w-sm'
+/>
+
+
         </div>
 
         {/* Column visibility */}
@@ -114,13 +156,18 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                    <TableHead
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                      className='cursor-pointer select-none'
+                    >
+                      <div className='flex items-center'>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {(header.column.id === 'email' || header.column.id === 'lastSeen') && getSortingIcon(header.column.id)}
+                      </div>
                     </TableHead>
                   )
                 })}
