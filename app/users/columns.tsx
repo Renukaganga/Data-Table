@@ -1,9 +1,8 @@
+// columns.tsx
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
-
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -14,32 +13,32 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-export type User = {
+export type UserData = {
   id: string
   name: string
-  emaiL: string
+  email: string
   image: string
   lastSeen: string
 }
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<UserData>[] = [
   {
     accessorKey: 'name',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant='ghost'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Name
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </Button>
-      )
-    }
+    header: ({ column }) => (
+      <Button
+        variant='ghost'
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        Name
+        <ArrowUpDown className='ml-2 h-4 w-4' />
+      </Button>
+    ),
+    accessorFn: row => row.name
   },
   {
     accessorKey: 'email',
-    header: 'Email'
+    header: 'Email',
+    accessorFn: row => row.email
   },
   {
     accessorKey: 'lastSeen',
@@ -48,7 +47,8 @@ export const columns: ColumnDef<User>[] = [
       const date = new Date(row.getValue('lastSeen'))
       const formatted = date.toLocaleDateString()
       return <div className='font-medium'>{formatted}</div>
-    }
+    },
+    accessorFn: row => row.lastSeen
   },
   {
     id: 'actions',
@@ -65,9 +65,7 @@ export const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)}
-            >
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
               Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />

@@ -1,16 +1,15 @@
-import { User, columns } from './columns'
+// pages/index.tsx
 import { DataTable } from '@/components/data-table';
+import { UserData, columns } from './columns';
 
-async function getUsers(): Promise<User[]> {
-  const res = await fetch(
-    'https://64a6f5fc096b3f0fcc80e3fa.mockapi.io/api/users'
-  )
-  const data = await res.json()
-  return data
+async function getUsers(): Promise<UserData[]> {
+  const res = await fetch('https://64a6f5fc096b3f0fcc80e3fa.mockapi.io/api/users');
+  const data = await res.json();
+  return data;
 }
 
 export default async function Page() {
-  const data = await getUsers()
+  const data = await getUsers();
 
   return (
     <section className='py-24'>
@@ -19,5 +18,5 @@ export default async function Page() {
         <DataTable columns={columns} data={data} />
       </div>
     </section>
-  )
+  );
 }

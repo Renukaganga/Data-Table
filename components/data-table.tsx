@@ -1,7 +1,7 @@
+// components/data-table.tsx
+
 'use client'
-
-import { useState } from 'react'
-
+import { useState } from 'react';
 import {
   ColumnDef,
   flexRender,
@@ -13,7 +13,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable
-} from '@tanstack/react-table'
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -22,26 +22,20 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu';
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import DataDownload from './data-download';
+import { UserData } from './data-download';
 
-// Define your data type
-interface UserData {
-  name: string;
-  email: string;
-  lastSeen: string;
-}
-
-// Define your columns
 const columns: ColumnDef<UserData, any>[] = [
   {
     accessorKey: 'name',
@@ -58,20 +52,20 @@ const columns: ColumnDef<UserData, any>[] = [
     header: () => <div className='flex items-center'>Last Seen</div>,
     cell: info => info.getValue(),
   },
-]
+];
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends UserData, TValue>({
   columns,
   data
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
@@ -88,40 +82,39 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel()
-  })
+  });
 
   const getSortingIcon = (columnId: string) => {
-    const isSorted = sorting.find(sort => sort.id === columnId)
-    if (!isSorted) return null
-    if (isSorted.desc) return '↓' // Replace with custom down arrow icon
-    return '↑' // Replace with custom up arrow icon
+    const isSorted = sorting.find(sort => sort.id === columnId);
+    if (!isSorted) return null;
+    if (isSorted.desc) return '↓';
+    return '↑';
   }
 
   return (
     <>
       <div className='flex items-center justify-between'>
         <div className='flex items-center py-4'>
-        <Input
-  placeholder='Search by name...'
-  value={
-    (table.getColumn('name')?.getFilterValue() as string) ?? 
-    (table.getColumn('email')?.getFilterValue() as string) ?? 
-    (table.getColumn('lastseen')?.getFilterValue() as string) ?? 
-    ''
-  }
-  onChange={event => {
-    const value = event.target.value;
-    table.getColumn('name')?.setFilterValue(value);
-    table.getColumn('email')?.setFilterValue(value);
-    table.getColumn('lastseen')?.setFilterValue(value);
-  }}
-  className='max-w-sm'
-/>
-
-
+          <Input
+            placeholder='Search by name or email...'
+            value={
+              (table.getColumn('name')?.getFilterValue() as string) ?? 
+              (table.getColumn('email')?.getFilterValue() as string) ?? 
+              (table.getColumn('lastSeen')?.getFilterValue() as string) ?? 
+              ''
+            }
+            onChange={event => {
+              const value = event.target.value;
+              table.getColumn('name')?.setFilterValue(value);
+              table.getColumn('email')?.setFilterValue(value);
+              table.getColumn('lastSeen')?.setFilterValue(value);
+            }}
+            className='max-w-sm'
+          />
         </div>
 
-        {/* Column visibility */}
+        <DataDownload data={data} />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant='outline' className='ml-auto'>
@@ -148,7 +141,6 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
 
-      {/* Table */}
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
@@ -169,7 +161,7 @@ export function DataTable<TData, TValue>({
                         {(header.column.id === 'email' || header.column.id === 'lastSeen') && getSortingIcon(header.column.id)}
                       </div>
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -205,7 +197,6 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      {/* Pagination */}
       <div className='flex items-center justify-end space-x-2 py-4'>
         <Button
           variant='outline'
@@ -225,5 +216,5 @@ export function DataTable<TData, TValue>({
         </Button>
       </div>
     </>
-  )
+  );
 }
